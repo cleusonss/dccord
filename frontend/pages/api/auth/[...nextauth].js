@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const API_URI = (process.env.NODE_ENV === "production" ? process.env.API_URI_CLOUD : process.env.API_URI_LOCAL)
+const API_URI = "http://localhost:3001";
 
 export default NextAuth({
   providers: [
