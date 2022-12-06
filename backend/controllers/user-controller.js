@@ -2,6 +2,7 @@ require("dotenv").config();
 require("../service/connection").connect();
 
 const bcrypt = require("bcryptjs");
+const { error } = require("console");
 const jwt = require("jsonwebtoken");
 
 const User = require("../model/user");
@@ -9,20 +10,20 @@ const User = require("../model/user");
 exports.save = async (req, res, next) => {
   try {
     const { first_name, last_name, birth, email, password } = req.body;
-
     if (!(email && password && first_name && last_name)) {
-      res.status(400).send("All input is required");
+      res
+        .status(401)
+        .send({ status: "error", message: "Missing required fields" });
     }
 
-    const user = await User.findOne({ email });
-
-    if (user) {
-      return res.status(409).send("User Already Exist. Please Login");
+    const beforeUser = await User.findOne({ email });
+    if (beforeUser) {
+      res.status(409).send({ status: "error", message: "User already exists" });
     }
+    
+    const encryptedPassword = await bcrypt.hash(password, 10);
 
-    encryptedPassword = await bcrypt.hash(password, 10);
-
-    user = await User.create({
+    const user = await User.create({
       first_name,
       last_name,
       birth,
@@ -30,14 +31,11 @@ exports.save = async (req, res, next) => {
       password: encryptedPassword,
     });
 
-    /* Retorna Token */
-    res.status(200).json({
-      _id: user._id,
-      email: email,
-      token: jwt_generated({ user_id: user._id, email }),
-    });
+    user.token = jwt_generated({ user_id: user._id, email });
+
+    res.status(200).json(user);
   } catch (err) {
-    console.log(err);
+    res.status(501).send({ status: "error", message: err.message });
   }
 };
 
@@ -61,6 +59,29 @@ exports.update = async (req, res, next) => {
 
       user.save();
       res.status(200).json(user);
+    } else {
+      res.status(400).send("Invalid User");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.delete = async (req, res, next) => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      res.status(400).send("E-mail missing");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+      user.delete();
+      res
+        .status(200)
+        .send({ status: "success", message: "User deleted successfully" });
     } else {
       res.status(400).send("Invalid User");
     }
