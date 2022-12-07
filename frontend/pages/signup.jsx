@@ -1,21 +1,12 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  Heading,
-  VStack,
-  Stack,
-} from "@chakra-ui/react";
+import { Box, Button, Heading, VStack, Stack } from "@chakra-ui/react";
 
 import { Input } from "@chakra-ui/input";
 import { useState, userEffect, useEffect } from "react";
-import axios from "axios";
 import api from "../services/api";
 
 const { log } = console;
 
-export default function Register() {
+export default function SignUp() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birth, setBirth] = useState("");
@@ -40,33 +31,18 @@ export default function Register() {
     // });
 
     try {
-    const res = await axios.post(
-      "http://localhost:3001/register",
-      JSON.stringify(user),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    ).then( (response)=>{
-        console.log(response.data);
-    });
+      const res = await api
+        .post("/signup", JSON.stringify(user), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+        });
     } catch (error) {
-        console.log(error.message);
+      console.log(error.message);
     }
-
-    // try {
-
-    //   axios({
-    //     url: "http://localhost:3001/login",
-    //     method: "GET",
-    //     body: JSON.stringify(user),
-    //   }).then((response) => {
-    //     console.log(response.data);
-    //   });
-    // } catch (error) {
-    //   log("Error: ", error);
-    // }
   };
 
   return (

@@ -1,38 +1,101 @@
 import {
   Box,
   Button,
-  Flex,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-  VStack,
-  Image,
   HStack,
   Link,
+  Heading,
+  VStack,
+  Stack,
+  Input,
+  Toast,
 } from "@chakra-ui/react";
+
+import { useRouter } from "next/router";
 
 import { useEffect, useState } from "react";
 import NextLink from "next/link";
-import { Formik } from "formik";
+import api from "../services/api";
 
 export default function Home() {
-  return (
-    <Flex
-      align="center"
-      justify="start"
-      h="100vh"
-      flexDirection="column"
-      pt={20}
-    >
-      <Box bg="white" p={6} rounded="md" w={300}>
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-        {/* Login */}
-        {/* <Formik> */}
-          <Input></Input>
-          <Input></Input>
-          <Button>Login</Button>
-        {/* </Formik> */}
+  const router = useRouter();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const res = await api
+        .post("/signin", JSON.stringify({ email, password }), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+          console.log(response.url);
+
+          router.push("/chatpage");
+        });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handleSign = async (values) => {
+    const res = await signIn("Credentials", {
+      redirect: false,
+      email: values.email,
+      password: values.password,
+      callbackUrl: `${window.location.origin}`,
+    });
+
+    if (res?.error) {
+      Toast({
+        title: `${res.error}`,
+        statis: "error",
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+    console.log(res.url);
+    // if (res.url) 
+    router.push("/chatpage");
+  };
+
+  return (
+    <VStack
+      as="form"
+      mx="auto"
+      w={{ base: "90%", md: 500 }}
+      h="100vh"
+      justifyContent="center"
+    >
+      <Heading> Login </Heading>
+
+      {/* Login */}
+      <Box mt={20}>
+        <Stack spacing={4}>
+          <Input
+            placeholder="Email"
+            name="email"
+            value={email}
+            onChange={({ target }) => setEmail(target?.value)}
+          />
+
+          <Input
+            placeholder="Senha"
+            name="password"
+            type="password"
+            value={password}
+            onChange={({ target }) => setPassword(target?.value)}
+          />
+
+          <Button type="submit" colorScheme="teal" onClick={handleSubmit}>
+            Entrar
+          </Button>
+        </Stack>
 
         {/* Esqueci a Senha e Cadastro */}
         <HStack
@@ -42,7 +105,6 @@ export default function Home() {
           fontWeight="bold"
           color="cyan.400"
         >
-
           {/* Esqueci a Senha */}
           <Box>
             <NextLink href="#" passHref>
@@ -54,7 +116,7 @@ export default function Home() {
 
           {/* Cadastro */}
           <Box>
-            <NextLink href="/cadastro" passHref>
+            <NextLink href="/signup" passHref>
               <Link textDecorationLine="none" _hover={{ color: "cyan.700" }}>
                 Cadastrar
               </Link>
@@ -62,6 +124,6 @@ export default function Home() {
           </Box>
         </HStack>
       </Box>
-    </Flex>
+    </VStack>
   );
 }
