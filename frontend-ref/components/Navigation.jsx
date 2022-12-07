@@ -9,8 +9,6 @@ export default function Navigation() {
         <Image
           src="/images/logo-small.png"
           alt="logo"
-          // objectFit="cover"
-          // boxSize="50px"
         />
         {/* IconButtons with Tooltips */}
         <Tooltip label="Dashboard" placement="right">

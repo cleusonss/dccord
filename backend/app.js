@@ -1,104 +1,56 @@
 require("dotenv").config();
-require("./config/database").connect();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 
 const express = require("express");
 const cors = require("cors");
+const morgan = require("morgan");
 const app = express();
-const User = require("./model/user");
 
-// ----------------- MIDDLEWARES
+const Auth = require("./middleware/auth");
+
+/* Middlewares */
 app.use(cors());
 app.use(express.json());
+app.use(morgan("dev"));
 
+/* Configura CORS */
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Header",
+    "Origin, X-Requested-With, Content-Type,Accept, Authorization"
+  );
 
-// ----------------- ROTAS
-
-// Cadastrar
-app.post("/register", async (req, res) => {
-  try {
-    const { first_name, last_name, birth, email, password } = req.body;
-
-    if (!(email && password && first_name && last_name)) {
-      res.status(400).send("All input is required");
-    }
-
-    const oldUser = await User.findOne({ email });
-
-    if (oldUser) {
-      return res.status(409).send("User Already Exist. Please Login");
-    }
-
-    encryptedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      first_name,
-      last_name,
-      birth,
-      email: email.toLowerCase(), // sanitize: convert email to lowercase
-      password: encryptedPassword,
-    });
-
-    const token = jwt.sign(
-      { user_id: user._id, email },
-      process.env.TOKEN_KEY,
-      {
-        expiresIn: "2h",
-      }
+  if (req.method === "OPTIONS") {
+    res.header(
+      "Access-Control-Allow-Methods",
+      "PUT, POST, PATCHED, DELETE, GET"
     );
-    user.token = token;
-
-    res.status(201).json(user);
-  } catch (err) {
-    console.log(err);
+    return res.status(200).send({});
   }
+
+  next();
 });
 
-// Login
-app.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+/* Rotas */
+const UserRouter = require("./routes/user-router");
 
-    if (!(email && password)) {
-      res.status(400).send("All input is required");
-    }
-    const user = await User.findOne({ email }).select("+password").exec();
+app.post("/signin", Auth.optional, UserRouter);
+app.post("/signup", Auth.optional, UserRouter);
 
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const token = jwt.sign(
-        { user_id: user._id, email },
-        process.env.TOKEN_KEY,
-        {
-          expiresIn: "2h",
-        }
-      );
-      user.token = token;
-      res.status(200).json(user);
-    } else {
-      res.status(400).send("Invalid Credentials");
-    }
-  } catch (err) {
-    console.log(err);
-  }
+app.get("/users/:email", Auth.optional, UserRouter);
+app.put("/users/:email", Auth.mandatory, UserRouter);
+app.delete("/users/:email", Auth.mandatory, UserRouter);
+
+/* Rota não Encontrada */
+app.use((req, res, next) => {
+  const error = new Error("Endpoint not found");
+  error.status = 404;
+  next(error);
 });
 
-// GET User Data
-app.get("/user/:email", async (req, res) => {
-  try {
-    const { email } = req.params;
-    if (!email) {
-      res.status(400).send("E-mail missing");
-    }
-    const user = await User.findOne({ email });
-    if (user) {
-      res.status(200).json(user);
-    } else {
-      res.status(400).send("Invalid Credentials");
-    }
-  } catch (err) {
-    console.log(err);
-  }
+app.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  return res.send({ status: "error", message: error.message });
 });
 
 module.exports = app;

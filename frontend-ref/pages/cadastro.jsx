@@ -89,7 +89,6 @@ export default function Cadastro() {
         >
           {({ handleSubmit, errors, touched }) => (
             <form onSubmit={handleSubmit}>
-              {/* {error && <Alerts error={error} />} */}
               <VStack spacing={4} align="flex-start">
                 <HStack>
                   <FormControl>
@@ -104,13 +103,7 @@ export default function Cadastro() {
                   </FormControl>
                   <FormControl>
                     <FormLabel htmlFor="last_name">Sobrenome</FormLabel>
-                    <Field
-                      as={Input}
-                      id="last_name"
-                      name="last_name"
-                      type="text"
-                      variant="filled"
-                    />
+                    c
                   </FormControl>
                 </HStack>
                 <FormControl>
