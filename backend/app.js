@@ -34,9 +34,10 @@ app.use((req, res, next) => {
 /* Rotas */
 const UserRouter = require("./routes/user-router");
 
+app.post("/signin", Auth.optional, UserRouter);
+app.post("/signup", Auth.optional, UserRouter);
+
 app.get("/users/:email", Auth.optional, UserRouter);
-app.get("/login", Auth.optional, UserRouter);
-app.post("/register", Auth.optional, UserRouter);
 app.put("/users/:email", Auth.mandatory, UserRouter);
 app.delete("/users/:email", Auth.mandatory, UserRouter);
 

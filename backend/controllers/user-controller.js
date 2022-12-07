@@ -20,7 +20,7 @@ exports.save = async (req, res, next) => {
     if (beforeUser) {
       res.status(409).send({ status: "error", message: "User already exists" });
     }
-    
+
     const encryptedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
