@@ -1,12 +1,17 @@
 import { Box, Button, Heading, VStack, Stack } from "@chakra-ui/react";
 
 import { Input } from "@chakra-ui/input";
-import { useState, userEffect, useEffect } from "react";
+import { useState } from "react";
 import api from "../services/api";
+import { useRouter } from "next/router";
+
 
 const { log } = console;
 
 export default function SignUp() {
+  
+  const router = useRouter();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birth, setBirth] = useState("");
@@ -38,10 +43,10 @@ export default function SignUp() {
           },
         })
         .then((response) => {
-          console.log(response.data);
+          router.push("/chatpage");
         });
     } catch (error) {
-      console.log(error.message);
+      log(error.message);
     }
   };
 
