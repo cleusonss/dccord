@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   HStack,
-  Link,
   Heading,
   VStack,
   Stack,
@@ -13,7 +12,6 @@ import {
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-import { useEffect, useState } from "react";
 import NextLink from "next/link";
 import { Link } from "@chakra-ui/react";
 
@@ -63,8 +61,7 @@ export default function Home() {
       });
     }
     console.log(res.url);
-    // if (res.url) 
-    router.push("/chatpage");
+    if (res.url) router.push("/chatpage");
   };
 
   return (
@@ -110,11 +107,14 @@ export default function Home() {
         >
           {/* Esqueci a Senha */}
           <Box>
-            <NextLink href="#" passHref>
-              <Link textDecorationLine="none" _hover={{ color: "cyan.700" }}>
-                Esqueceu a senha
-              </Link>
-            </NextLink>
+            <Link
+              as={NextLink}
+              href="#"
+              textDecorationLine="none"
+              _hover={{ color: "cyan.700" }}
+            >
+              Esqueceu a senha
+            </Link>
           </Box>
 
           {/* Cadastro */}
@@ -127,7 +127,6 @@ export default function Home() {
             >
               Cadastrar
             </Link>
-            </NextLink>
           </Box>
         </HStack>
       </Box>
