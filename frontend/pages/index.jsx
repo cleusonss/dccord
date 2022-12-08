@@ -11,9 +11,12 @@ import {
 } from "@chakra-ui/react";
 
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 import { useEffect, useState } from "react";
 import NextLink from "next/link";
+import { Link } from "@chakra-ui/react";
+
 import api from "../services/api";
 
 export default function Home() {
@@ -116,10 +119,14 @@ export default function Home() {
 
           {/* Cadastro */}
           <Box>
-            <NextLink href="/signup" passHref>
-              <Link textDecorationLine="none" _hover={{ color: "cyan.700" }}>
-                Cadastrar
-              </Link>
+            <Link
+              as={NextLink}
+              href="/signup"
+              textDecorationLine="none"
+              _hover={{ color: "cyan.700" }}
+            >
+              Cadastrar
+            </Link>
             </NextLink>
           </Box>
         </HStack>
