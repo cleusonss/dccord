@@ -17,11 +17,18 @@ import { Link } from "@chakra-ui/react";
 
 import api from "../services/api";
 
+import { io } from "socket.io-client";
+const socket = io("http://localhost:3001", {transport: ['websocket']});
+
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const router = useRouter();
+
+  const handleSocket = ( event ) => {
+    socket.emit("room", { post: "nama"});
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -94,6 +101,9 @@ export default function Home() {
 
           <Button type="submit" colorScheme="teal" onClick={handleSubmit}>
             Entrar
+          </Button>
+          <Button type="submit" colorScheme="teal" onClick={handleSocket}>
+            Socket
           </Button>
         </Stack>
 
